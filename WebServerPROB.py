@@ -8,7 +8,11 @@ from socket import *
 serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # Fill in start
-
+# Defining serverSocket HOST and PORT, and listening
+HOST = 127.0.0.1
+PORT = 32008
+serverSocket.bind((HOST, PORT))
+serversocket.listen()
 # Fill in end 
 
 # Server should be up and running and listening to the incoming connections
@@ -16,7 +20,7 @@ while True:
 	print('Ready to serve...')
 	
 	# Set up a new connection from the client
-	connectionSocket, addr = #Fill in start             #Fill in end
+	connectionSocket, addr = serverSocket.accept() #Fill in start             #Fill in end
 	
 	# If an exception occurs during the execution of try clause
 	# the rest of the clause is skipped
@@ -24,7 +28,7 @@ while True:
 	# the except clause is executed
 	try:
 		# Receives the request message from the client
-		message =  #Fill in start           #Fill in end
+		message =  connectionSocket.recv(1024) #Fill in start           #Fill in end
 
 		# Extract the path of the requested object from the message
 		# The path is the second part of HTTP header, identified by [1]
@@ -35,12 +39,13 @@ while True:
 		f = open(filename[1:])
 
 		# Store the entire contenet of the requested file in a temporary buffer
-		outputdata = #Fill in start         #Fill in end
+		outputdata = f.read() #Fill in start         #Fill in end
 
 		# Send the HTTP response header line to the connection socket
 		# Fill in start
-        
-        # Fill in end
+		# Connection is successful if it gets here
+        	connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n")
+        	# Fill in end
  
 		# Send the content of the requested file to the connection socket
 		for i in range(0, len(outputdata)):  
@@ -53,13 +58,13 @@ while True:
 	except IOError:
 		# Send HTTP response message for file not found
 		# Fill in start
-
-        # Fill in end
+		connectionSocket.send("HTTP/1.1 404 Not found\r\n\r\n")
+        	# Fill in end
         
 		# Close the client connection socket
 		# Fill in start
-
-        # Fill in end
+		connectionSocket.close()
+        	# Fill in end
 
 serverSocket.close()  
 
