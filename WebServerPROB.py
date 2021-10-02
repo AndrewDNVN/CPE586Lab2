@@ -9,7 +9,7 @@ serverSocket = socket(AF_INET, SOCK_STREAM)
 
 # Fill in start
 # Defining serverSocket HOST and PORT, and listening
-HOST = 127.0.0.1
+HOST = '127.0.0.1'
 PORT = 32008
 serverSocket.bind((HOST, PORT))
 serversocket.listen()
