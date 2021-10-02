@@ -44,7 +44,7 @@ while True:
 		# Send the HTTP response header line to the connection socket
 		# Fill in start
 		# Connection is successful if it gets here
-        	connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n")
+        	connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n".encode())
         	# Fill in end
  
 		# Send the content of the requested file to the connection socket
