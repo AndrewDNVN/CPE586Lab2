@@ -38,47 +38,63 @@ while True:
         url = "http:/" + message.split()[1].decode()
 
         cached = False
-        # Check if the url is cached
+        # Check if the url is cached, and if so return the data stored with code 200
         for entry in cache:
             if url == entry[0]:
                 cached = True
                 outputdata = entry[1]
+                # test print to let user know it was cached
                 print("returned from cache")
 
+                # Send the HTTP response header line to the connection socket
+                # Connection is successful if it gets here
+                connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n".encode())
+
+                # Send the content of the requested file to the connection socket
+                connectionSocket.sendall(outputdata)
+                # for i in range(0, len(outputdata)):
+                #    connectionSocket.send(outputdata[i].encode())
+                connectionSocket.send("\r\n".encode())
+
+                # Close the client connection socket
+                connectionSocket.close()
+
+        # if data isn't cached ask server for data
         if not cached:
-            # Because the extracted path of the HTTP request includes
-            # a character '\', we read the path from the second character
+            # This sends an http request to the initial server
             f = requests.get(url)
+            # check if status is OK
+            if f.status_code == 200:
+                # Store the entire content of the requested file in a temporary buffer
+                outputdata = f.content
 
-            # Store the entire content of the requested file in a temporary buffer
-            outputdata = f.text
+                # add data to cache
+                cache.append((url, outputdata))
 
-            # add data to cache
-            cache.append((url, outputdata))
+                # Send the HTTP response header line to the connection socket
+                # Connection is successful if it gets here
+                connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n".encode())
 
-        # Send the HTTP response header line to the connection socket
-        # Fill in start
-        # Connection is successful if it gets here
-        connectionSocket.send("HTTP/1.1 200 OK\r\n\r\n".encode())
-        # Fill in end
+                # Send the content of the requested file to the connection socket
+                connectionSocket.sendall(outputdata)
+                # for i in range(0, len(outputdata)):
+                #    connectionSocket.send(outputdata[i])
+                connectionSocket.send("\r\n".encode())
 
-        # Send the content of the requested file to the connection socket
-        for i in range(0, len(outputdata)):
-            connectionSocket.send(outputdata[i].encode())
-        connectionSocket.send("\r\n".encode())
+                # Close the client connection socket
+                connectionSocket.close()
+            else:
+                # send 404 not found if status is not okay
+                connectionSocket.send("HTTP/1.1 404 Not found\r\n\r\n".encode())
 
-        # Close the client connection socket
-        connectionSocket.close()
+                # Close the client connection socket
+                connectionSocket.close()
 
     except IOError:
         # Send HTTP response message for file not found
-        # Fill in start
         connectionSocket.send("HTTP/1.1 404 Not found\r\n\r\n".encode())
-        # Fill in end
 
         # Close the client connection socket
-        # Fill in start
         connectionSocket.close()
-    # Fill in end
 
 serverSocket.close()
